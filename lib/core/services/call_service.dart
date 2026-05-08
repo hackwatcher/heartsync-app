@@ -79,12 +79,15 @@ class CallService {
     _socketService.socketStream.listen(_handleSignalingEvent);
   }
 
+  RTCSessionDescription? pendingOffer;
+
   void _handleSignalingEvent(Map<String, dynamic> event) async {
     final type = event['type'];
     final data = event['data'];
 
     if (type == 'webrtc_offer') {
       _currentStatus = CallStatus.incoming;
+      pendingOffer = RTCSessionDescription(data['sdp'], data['type']);
       _statusController.add(_currentStatus);
       _incomingCallController.add(true); // Show incoming call screen
     } else if (type == 'webrtc_answer') {

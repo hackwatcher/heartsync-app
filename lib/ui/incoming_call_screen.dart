@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -52,12 +53,23 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
 
     return Positioned.fill(
       child: Material(
-        color: Colors.black.withValues(alpha: 0.85),
+        color: Colors.transparent,
         child: Stack(
           children: [
+            // Deep Glass Background
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.4),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                child: Container(),
+              ),
+            ),
+
             // Animated background blobs
-            _AnimatedBlob(color: SyncColors.violet, top: -80, left: -80),
-            _AnimatedBlob(color: SyncColors.coral, bottom: -80, right: -80),
+            _AnimatedBlob(color: SyncColors.violet, top: -100, left: -100),
+            _AnimatedBlob(color: SyncColors.coral, bottom: -100, right: -100),
             
             Column(
               mainAxisAlignment: MainAxisAlignment.center,

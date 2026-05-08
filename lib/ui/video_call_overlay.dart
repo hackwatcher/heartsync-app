@@ -134,14 +134,19 @@ class _VideoCallOverlayState extends State<VideoCallOverlay> {
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: SyncColors.surface.withValues(alpha: 0.8),
+          color: SyncColors.surface.withValues(alpha: 0.9),
           shape: BoxShape.circle,
-          border: Border.all(color: color, width: 2),
+          border: Border.all(color: color.withValues(alpha: 0.8), width: 3),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.3),
-              blurRadius: 15,
+              color: color.withValues(alpha: 0.5),
+              blurRadius: 30,
               spreadRadius: 2,
+            ),
+            BoxShadow(
+              color: Colors.black54,
+              offset: const Offset(0, 10),
+              blurRadius: 20,
             ),
           ],
         ),
