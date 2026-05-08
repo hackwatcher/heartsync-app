@@ -11,8 +11,6 @@ import '../core/services/app_state.dart';
 import '../core/services/media_service.dart';
 import '../core/services/sync_service.dart';
 
-import 'package:flutter/material.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
