@@ -123,7 +123,6 @@ class CallService {
   }
 
   Future<void> _handleOffer(Map<String, dynamic> offerData) async {
-    _storeOffer(offerData);
     final room = _appState.roomId ?? 'default';
     await _createPeerConnection(room);
     
