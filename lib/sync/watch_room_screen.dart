@@ -82,7 +82,6 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                });
              });
           }
-           }
         } else {
           // Socket messages from server/system or specifically for presence
           if (event['type'] == 'partner_online') {
