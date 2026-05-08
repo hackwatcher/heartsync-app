@@ -47,6 +47,16 @@ class PersistenceService {
     return prefs.getBool(_prefix + key);
   }
 
+  Future<void> saveInt(String key, int value) async {
+    final prefs = await _sharedPrefs;
+    await prefs.setInt(_prefix + key, value);
+  }
+
+  Future<int?> getInt(String key) async {
+    final prefs = await _sharedPrefs;
+    return prefs.getInt(_prefix + key);
+  }
+
   Future<void> remove(String key) async {
     final prefs = await _sharedPrefs;
     await prefs.remove(_prefix + key);
