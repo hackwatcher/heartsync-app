@@ -79,7 +79,8 @@ class CallService {
     _socketService.socketStream.listen(_handleSignalingEvent);
   }
 
-  RTCSessionDescription? pendingOffer;
+  RTCSessionDescription? _pendingOffer;
+  RTCSessionDescription? get pendingOffer => _pendingOffer;
 
   void _handleSignalingEvent(Map<String, dynamic> event) async {
     final type = event['type'];
@@ -87,7 +88,7 @@ class CallService {
 
     if (type == 'webrtc_offer') {
       _currentStatus = CallStatus.incoming;
-      pendingOffer = RTCSessionDescription(data['sdp'], data['type']);
+      _pendingOffer = RTCSessionDescription(data['sdp'], data['type']);
       _statusController.add(_currentStatus);
       _incomingCallController.add(true); // Show incoming call screen
     } else if (type == 'webrtc_answer') {
@@ -101,18 +102,12 @@ class CallService {
   }
   
   // Called when user accepts the incoming call
-  Future<void> acceptCall(Map<String, dynamic> offerData) async {
+  Future<void> acceptCall(RTCSessionDescription offer) async {
     _incomingCallController.add(false);
-    await _handleOffer(offerData);
+    await _handleOffer(offer.toMap());
   }
   
-  // Store latest offer to pass to acceptCall
-  Map<String, dynamic>? _pendingOffer;
-  Map<String, dynamic>? get pendingOffer => _pendingOffer;
-  
-  void _storeOffer(Map<String, dynamic> offerData) {
-    _pendingOffer = offerData;
-  }
+
 
   Future<void> startCall([String? roomId]) async {
     final room = roomId ?? _appState.roomId ?? 'default';
