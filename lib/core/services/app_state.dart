@@ -20,6 +20,8 @@ class AppState extends ChangeNotifier {
   bool _notificationsEnabled = true;
   bool _darkModeEnabled = true;
   String _vibrationIntensity = 'Orta';
+  String? _myPhotoUrl;
+  String? _partnerPhotoUrl;
 
   String get myName => _myName;
   String get partnerName => _partnerName;
@@ -32,6 +34,8 @@ class AppState extends ChangeNotifier {
   bool get notificationsEnabled => _notificationsEnabled;
   bool get darkModeEnabled => _darkModeEnabled;
   String get vibrationIntensity => _vibrationIntensity;
+  String? get myPhotoUrl => _myPhotoUrl;
+  String? get partnerPhotoUrl => _partnerPhotoUrl;
 
   Future<void> loadFromStorage() async {
     _myName = await _persistence.getString('my_name') ?? 'You';

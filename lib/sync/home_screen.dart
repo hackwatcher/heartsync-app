@@ -212,7 +212,11 @@ class _TopDashboardHeader extends StatelessWidget {
                     children: [
                       Positioned(
                         left: 0,
-                        child: _AvatarCircle(label: appState.myName.characters.first.toUpperCase(), color: SyncColors.coral),
+                        child: _AvatarCircle(
+                          label: appState.myName.characters.first.toUpperCase(), 
+                          color: SyncColors.coral,
+                          photoUrl: appState.myPhotoUrl,
+                        ),
                       ),
                       Positioned(
                         left: 80,
@@ -220,6 +224,7 @@ class _TopDashboardHeader extends StatelessWidget {
                           label: appState.partnerName.characters.first.toUpperCase(), 
                           color: SyncColors.violet,
                           isPulsing: showPulse,
+                          photoUrl: appState.partnerPhotoUrl,
                         ),
                       ),
                     ],
@@ -262,11 +267,13 @@ class _AvatarCircle extends StatelessWidget {
   final String label;
   final Color color;
   final bool isPulsing;
+  final String? photoUrl;
 
   const _AvatarCircle({
     required this.label, 
     required this.color,
     this.isPulsing = false,
+    this.photoUrl,
   });
 
   @override
@@ -278,13 +285,21 @@ class _AvatarCircle extends StatelessWidget {
         color: color.withValues(alpha: 0.2),
         shape: BoxShape.circle,
         border: Border.all(color: isPulsing ? Colors.white : color, width: 2),
+        image: photoUrl != null 
+          ? DecorationImage(
+              image: NetworkImage(photoUrl!),
+              fit: BoxFit.cover,
+            )
+          : null,
       ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(color: isPulsing ? Colors.white : color, fontWeight: FontWeight.bold),
-        ),
-      ),
+      child: photoUrl == null 
+        ? Center(
+            child: Text(
+              label,
+              style: TextStyle(color: isPulsing ? Colors.white : color, fontWeight: FontWeight.bold, fontSize: 32),
+            ),
+          )
+        : null,
     ).animate(target: isPulsing ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2));
   }
 }
