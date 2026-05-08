@@ -203,8 +203,8 @@ class _TopDashboardHeader extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(
-                  width: 88,
-                  height: 48,
+                  width: 176,
+                  height: 96,
                   child: Stack(
                     children: [
                       Positioned(
@@ -212,7 +212,7 @@ class _TopDashboardHeader extends StatelessWidget {
                         child: _AvatarCircle(label: appState.myName.characters.first.toUpperCase(), color: SyncColors.coral),
                       ),
                       Positioned(
-                        left: 40,
+                        left: 80,
                         child: _AvatarCircle(
                           label: appState.partnerName.characters.first.toUpperCase(), 
                           color: SyncColors.violet,
@@ -222,10 +222,10 @@ class _TopDashboardHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
                   '${appState.myName} & ${appState.partnerName}',
-                  style: GoogleFonts.syne(fontSize: 22, fontWeight: FontWeight.w700, color: SyncColors.textPrimary),
+                  style: GoogleFonts.syne(fontSize: 44, fontWeight: FontWeight.w700, color: SyncColors.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -269,8 +269,8 @@ class _AvatarCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 48,
-      height: 48,
+      width: 96,
+      height: 96,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
         shape: BoxShape.circle,
