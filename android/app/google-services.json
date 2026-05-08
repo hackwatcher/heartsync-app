@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "757865993715",
+    "project_id": "heartsync-6792f",
+    "storage_bucket": "heartsync-6792f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757865993715:android:4d5f580d8e161a9f08ee86",
+        "android_client_info": {
+          "package_name": "com.example.heartsync"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "757865993715-cr9csm91qt5hm3cqr2r3h5l2u7eidt6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.heartsync",
+            "certificate_hash": "324f4aaff9d71173f53186e8c6f798736368ac30"
+          }
+        },
+        {
+          "client_id": "757865993715-fducc3l0t2fd4hnu7fm1qovl0f8qescp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDohDlN10cNk9cSJVtGqrPVZeE_4U0u4sA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "757865993715-fducc3l0t2fd4hnu7fm1qovl0f8qescp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
