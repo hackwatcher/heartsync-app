@@ -34,8 +34,8 @@ class SocketService {
 
     _setState(ConnectionState.connecting);
 
-    socket = IO.io(url,
-      IO.OptionBuilder()
+    socket = io.io(url,
+      io.OptionBuilder()
         .enableAutoConnect()
         .setTimeout(20000) // 20 seconds connection timeout
         .setReconnectionAttempts(99999) // Infinite retries for network drops/cellular switching
