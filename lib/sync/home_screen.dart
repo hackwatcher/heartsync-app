@@ -10,6 +10,8 @@ import '../core/models/sync_models.dart';
 import '../core/services/app_state.dart';
 import '../core/services/media_service.dart';
 import '../core/services/sync_service.dart';
+import 'widgets/next_movie_note_card.dart';
+import 'widgets/partner_context_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -115,6 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     SyncNotification.show(context, message: 'Thinking of ${_appState.partnerName}...', icon: Icons.auto_awesome);
                   },
                 ),
+                
+                const PartnerContextCard(),
+                const NextMovieNoteCard(),
                 
                 const SizedBox(height: 12),
                 
