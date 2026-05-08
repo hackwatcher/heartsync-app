@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'socket_service.dart';
 import 'app_state.dart';
@@ -52,7 +53,24 @@ class CallService {
     _statusController.add(_currentStatus);
   }
 
-  double remoteVolume = 1.0; // UI state representation
+  double remoteVolume = 1.0;
+  bool _isSpeakerOn = true;
+  bool get isSpeakerOn => _isSpeakerOn;
+
+  void toggleSpeakerphone() {
+    HapticFeedback.lightImpact();
+    _isSpeakerOn = !_isSpeakerOn;
+    Helper.setSpeakerphoneOn(_isSpeakerOn);
+    _statusController.add(_currentStatus);
+  }
+
+  Future<void> switchCamera() async {
+    HapticFeedback.lightImpact();
+    if (_localStream != null) {
+      final videoTrack = _localStream!.getVideoTracks().first;
+      await Helper.switchCamera(videoTrack);
+    }
+  }
 
   final Map<String, dynamic> _iceServers = {
     'iceServers': [

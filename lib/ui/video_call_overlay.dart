@@ -105,6 +105,22 @@ class _VideoCallOverlayState extends State<VideoCallOverlay> {
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             onPressed: () => setState(() => _callService.isCameraOff = !_callService.isCameraOff),
           ),
+          IconButton(
+            icon: const Icon(Icons.flip_camera_ios_rounded, size: 16, color: Colors.white70),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: () => _callService.switchCamera(),
+          ),
+          IconButton(
+            icon: Icon(
+              _callService.isSpeakerOn ? Icons.volume_up_rounded : Icons.volume_down_rounded,
+              size: 16,
+              color: Colors.white70,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: () => setState(() => _callService.toggleSpeakerphone()),
+          ),
           SizedBox(
             width: 60,
             child: SliderTheme(

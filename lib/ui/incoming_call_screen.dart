@@ -128,9 +128,36 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
   }
 }
 
-class _PulsingAvatar extends StatelessWidget {
+class _PulsingAvatar extends StatefulWidget {
   final String name;
   const _PulsingAvatar({required this.name});
+
+  @override
+  State<_PulsingAvatar> createState() => _PulsingAvatarState();
+}
+
+class _PulsingAvatarState extends State<_PulsingAvatar> {
+  Timer? _vibrationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startVibrationLoop();
+  }
+
+  @override
+  void dispose() {
+    _vibrationTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startVibrationLoop() {
+    _vibrationTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+      if (mounted) {
+        HapticFeedback.heavyImpact();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
