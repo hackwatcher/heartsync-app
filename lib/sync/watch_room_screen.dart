@@ -41,6 +41,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
   bool _isPartnerOnline = false;
+  final ScrollController _chatScrollController = ScrollController();
 
   @override
   void initState() {
@@ -78,9 +79,11 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
              setState(() {
                _chatMessages.add({
                  'sender': _appState.partnerName,
-                 'text': event['data']['text'] ?? ''
+                 'text': event['data']['text'] ?? '',
+                 'time': '${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}'
                });
              });
+             _scrollToBottom();
           }
         } else {
           // Socket messages from server/system or specifically for presence
@@ -175,8 +178,21 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
     });
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_chatScrollController.hasClients) {
+        _chatScrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _chatScrollController.dispose();
     _videoController?.dispose();
     _watchSubscription.cancel();
     _socketSubscription.cancel();
@@ -369,6 +385,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                           const SizedBox(height: 16),
                           Expanded(
                             child: ListView.builder(
+                              controller: _chatScrollController,
                               reverse: true,
                               itemCount: _chatMessages.length,
                               itemBuilder: (context, index) {
@@ -380,16 +397,22 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${msg['sender']}: ', 
+                                        '${msg['sender']} ', 
                                         style: TextStyle(
+                                          fontSize: 12,
                                           fontWeight: FontWeight.bold, 
-                                          color: isMe ? Colors.white : SyncColors.coral
+                                          color: isMe ? Colors.white54 : SyncColors.coral.withValues(alpha: 0.7)
                                         )
                                       ),
+                                      if (msg['time'] != null)
+                                        Text(
+                                          '[${msg['time']}] ',
+                                          style: const TextStyle(color: Colors.white24, fontSize: 10),
+                                        ),
                                       Expanded(
                                         child: Text(
                                           msg['text']!, 
-                                          style: const TextStyle(color: Colors.white70)
+                                          style: const TextStyle(color: Colors.white, fontSize: 13)
                                         )
                                       ),
                                     ],
@@ -403,8 +426,13 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                             onSend: (text) {
                               _socketService.emitEvent(_appState.roomId ?? 'default', 'chat', {'text': text});
                               setState(() {
-                                _chatMessages.add({'sender': 'Sen', 'text': text});
+                                _chatMessages.add({
+                                  'sender': 'Sen', 
+                                  'text': text,
+                                  'time': '${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}'
+                                });
                               });
+                              _scrollToBottom();
                             },
                           ),
                           const SizedBox(height: 90), // Navigation bar height clearance
