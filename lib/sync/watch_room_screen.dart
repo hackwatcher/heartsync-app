@@ -171,7 +171,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
           final hasRoom = _appState.roomId != null;
           return Stack(
             children: [
-              _AmbientBreathingGlow(),
+              _AmbientBreathingGlow(isPlaying: _isPlaying),
               
               Column(
                 children: [
@@ -563,13 +563,16 @@ class _QuickReactionsRow extends StatelessWidget {
 }
 
 class _AmbientBreathingGlow extends StatelessWidget {
+  final bool isPlaying;
+  const _AmbientBreathingGlow({required this.isPlaying});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: SyncColors.coral.withValues(alpha: 0.04),
+            color: SyncColors.coral.withValues(alpha: isPlaying ? 0.08 : 0.02),
             blurRadius: 100,
             spreadRadius: 50,
           ),
@@ -577,7 +580,7 @@ class _AmbientBreathingGlow extends StatelessWidget {
       ),
     ).animate(onPlay: (c) => c.repeat(reverse: true))
     .custom(
-      duration: 4000.ms,
+      duration: isPlaying ? 2500.ms : 6000.ms,
       builder: (context, value, child) => Opacity(opacity: value, child: child),
     );
   }
@@ -588,17 +591,22 @@ class _SyncIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black45,
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white10, width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.favorite, color: Colors.green, size: 12),
-          const SizedBox(width: 4),
-          const Text('In Sync', style: TextStyle(fontSize: 10, color: Colors.white)),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle),
+          ).animate(onPlay: (c) => c.repeat()).fade(duration: 800.ms),
+          const SizedBox(width: 8),
+          const Text('SENKRONİZE', style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
         ],
       ),
     );
@@ -661,9 +669,24 @@ class _PartnerAvatarReaction extends StatelessWidget {
   const _PartnerAvatarReaction();
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 16,
-      backgroundImage: const NetworkImage('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=50'),
+    final appState = AppState();
+    final photoUrl = appState.partnerPhotoUrl;
+    final initials = appState.partnerName.isNotEmpty ? appState.partnerName[0] : 'P';
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: SyncColors.coral.withValues(alpha: 0.2),
+        border: Border.all(color: SyncColors.coral.withValues(alpha: 0.5), width: 1.5),
+        image: photoUrl != null 
+          ? DecorationImage(image: NetworkImage(photoUrl), fit: BoxFit.cover)
+          : null,
+      ),
+      child: photoUrl == null 
+        ? Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)))
+        : null,
     ).animate(onPlay: (c) => c.repeat(reverse: true))
     .moveY(begin: 0, end: -4, duration: 2000.ms);
   }
