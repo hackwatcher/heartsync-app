@@ -382,7 +382,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                               });
                             },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 90), // Navigation bar height clearance
                         ],
                       ),
                     ),
