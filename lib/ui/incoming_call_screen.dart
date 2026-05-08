@@ -162,7 +162,7 @@ class _PulsingAvatarState extends State<_PulsingAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final initial = widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?';
     return Stack(
       alignment: Alignment.center,
       children: [
