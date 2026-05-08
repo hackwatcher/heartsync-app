@@ -36,8 +36,10 @@ class _PartnerProfileScreenState extends State<PartnerProfileScreen> {
           children: [
             // Header with blurred collage
             _ProfileHeader(
-              name: appState.partnerName, 
-              timezone: appState.partnerTimezone,
+              name: appState.myName, 
+              timezone: appState.myTimezone,
+              photoUrl: appState.myPhotoUrl,
+              age: appState.myAge,
             ),
             
             Padding(
@@ -62,7 +64,15 @@ class _PartnerProfileScreenState extends State<PartnerProfileScreen> {
 class _ProfileHeader extends StatelessWidget {
   final String name;
   final String timezone;
-  const _ProfileHeader({required this.name, required this.timezone});
+  final String? photoUrl;
+  final int? age;
+  
+  const _ProfileHeader({
+    required this.name, 
+    required this.timezone,
+    this.photoUrl,
+    this.age,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -100,14 +110,20 @@ class _ProfileHeader extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 49,
                   backgroundColor: SyncColors.surface,
-                  child: Text(
-                    name.characters.first.toUpperCase(),
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: SyncColors.coral),
-                  ),
+                  backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
+                  child: photoUrl == null 
+                    ? Text(
+                        name.characters.first.toUpperCase(),
+                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: SyncColors.coral),
+                      )
+                    : null,
                 ),
               ),
               const SizedBox(height: 16),
-              Text(name, style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 32)),
+              Text(
+                age != null ? "$name, $age" : name, 
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 32)
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [

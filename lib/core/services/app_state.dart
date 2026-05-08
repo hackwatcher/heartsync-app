@@ -22,6 +22,7 @@ class AppState extends ChangeNotifier {
   String _vibrationIntensity = 'Orta';
   String? _myPhotoUrl;
   String? _partnerPhotoUrl;
+  int? _myAge;
 
   String get myName => _myName;
   String get partnerName => _partnerName;
@@ -36,6 +37,7 @@ class AppState extends ChangeNotifier {
   String get vibrationIntensity => _vibrationIntensity;
   String? get myPhotoUrl => _myPhotoUrl;
   String? get partnerPhotoUrl => _partnerPhotoUrl;
+  int? get myAge => _myAge;
 
   Future<void> loadFromStorage() async {
     _myName = await _persistence.getString('my_name') ?? 'You';
@@ -48,6 +50,9 @@ class AppState extends ChangeNotifier {
     _notificationsEnabled = await _persistence.getBool('notifications_enabled') ?? true;
     _darkModeEnabled = await _persistence.getBool('dark_mode_enabled') ?? true;
     _vibrationIntensity = await _persistence.getString('vibration_intensity') ?? 'Orta';
+    _myPhotoUrl = await _persistence.getString('my_photo_url');
+    _partnerPhotoUrl = await _persistence.getString('partner_photo_url');
+    _myAge = await _persistence.getInt('my_age');
     
     final dateStr = await _persistence.getString('reunion_date');
     if (dateStr != null) {
@@ -77,6 +82,24 @@ class AppState extends ChangeNotifier {
   Future<void> setPartnerTimezone(String tz) async {
     _partnerTimezone = tz;
     await _persistence.saveString('partner_timezone', tz);
+    notifyListeners();
+  }
+
+  Future<void> setMyPhotoUrl(String? url) async {
+    _myPhotoUrl = url;
+    if (url != null) await _persistence.saveString('my_photo_url', url);
+    notifyListeners();
+  }
+
+  Future<void> setPartnerPhotoUrl(String? url) async {
+    _partnerPhotoUrl = url;
+    if (url != null) await _persistence.saveString('partner_photo_url', url);
+    notifyListeners();
+  }
+
+  Future<void> setMyAge(int age) async {
+    _myAge = age;
+    await _persistence.saveInt('my_age', age);
     notifyListeners();
   }
 

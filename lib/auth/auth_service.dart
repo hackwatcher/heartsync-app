@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
+import '../core/services/app_state.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -31,6 +32,11 @@ class AuthService {
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
+      // Sync to AppState
+      final appState = AppState();
+      if (googleUser.displayName != null) await appState.setMyName(googleUser.displayName!);
+      if (googleUser.photoUrl != null) await appState.setMyPhotoUrl(googleUser.photoUrl!);
+
       // Create a new credential
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -40,7 +46,7 @@ class AuthService {
       // Once signed in, return the UserCredential
       return await _auth.signInWithCredential(credential);
     } catch (e) {
-      print("Google Sign-In Error: \$e");
+      debugPrint("Google Sign-In Error: $e");
       return null;
     }
   }
