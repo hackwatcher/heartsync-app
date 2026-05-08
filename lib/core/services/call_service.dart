@@ -70,6 +70,8 @@ class CallService {
   };
 
   Future<void> initRenderers() async {
+    if (localRenderer != null && remoteRenderer != null) return;
+    
     localRenderer = RTCVideoRenderer();
     remoteRenderer = RTCVideoRenderer();
     await localRenderer!.initialize();
