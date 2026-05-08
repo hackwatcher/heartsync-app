@@ -57,12 +57,22 @@ class WatchService {
           }
         }
 
-        _watchEventController.add(WatchEvent(
-          type: _isPlaying ? WatchEventType.play : WatchEventType.pause,
-          position: _currentPosition,
-          senderId: 'server_snapshot',
-        ));
-      }
+          _watchEventController.add(WatchEvent(
+            type: _isPlaying ? WatchEventType.play : WatchEventType.pause,
+            position: _currentPosition,
+            senderId: 'server_snapshot',
+          ));
+        }
+
+        if (event['type'] == 'watch_sync_request') {
+          // Handled in UI layer via watchEventStream if needed or directly here
+          // But usually we want the UI to provide the exact video position
+          _watchEventController.add(WatchEvent(
+            type: WatchEventType.buffer, // Use buffer as a signal for "sync requested"
+            position: Duration.zero,
+            senderId: event['senderId'],
+          ));
+        }
       
       // 2. Real-time Events
       if (event['type'] == 'watch_command') {
@@ -101,6 +111,22 @@ class WatchService {
         );
         _watchEventController.add(watchEvent);
       }
+    });
+  }
+
+  void emitEvent(String roomId, String type, dynamic data) {
+    _socketService.emitEvent(roomId, type, data);
+  }
+
+  void requestSync(String roomId) {
+    _socketService.emitEvent(roomId, 'watch_sync_request', {'timestamp': DateTime.now().millisecondsSinceEpoch});
+  }
+
+  void sendSyncSnapshot(String roomId, bool isPlaying, Duration position) {
+    _socketService.emitEvent(roomId, 'sync_snapshot', {
+      'isPlaying': isPlaying,
+      'videoTime': position.inMilliseconds,
+      'lastUpdatedAt': DateTime.now().millisecondsSinceEpoch,
     });
   }
 

@@ -40,6 +40,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
   
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
+  bool _isPartnerOnline = false;
 
   @override
   void initState() {
@@ -81,6 +82,14 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                });
              });
           }
+           }
+        } else {
+          // Socket messages from server/system or specifically for presence
+          if (event['type'] == 'partner_online') {
+            setState(() => _isPartnerOnline = true);
+          } else if (event['type'] == 'partner_offline') {
+            setState(() => _isPartnerOnline = false);
+          }
         }
       }
     });
@@ -94,6 +103,11 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
       }
     });
     _isCallActive = _callService.currentStatus == CallStatus.connected;
+    
+    // Request initial sync from partner if already in a room
+    if (_appState.roomId != null) {
+      _watchService.requestSync(_appState.roomId!);
+    }
   }
 
   void _handleWatchEvent(WatchEvent event) {
@@ -114,6 +128,15 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
           _videoController!.seekTo(event.position);
         } else if (event.type == WatchEventType.seek) {
           _videoController!.seekTo(event.position);
+        } else if (event.type == WatchEventType.buffer) {
+          // Partner requested sync, send our current position
+          if (_videoController != null && _appState.roomId != null) {
+            _watchService.sendSyncSnapshot(
+              _appState.roomId!,
+              _isPlaying,
+              _videoController!.value.position,
+            );
+          }
         }
       }
     }
@@ -165,13 +188,16 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: false,
       body: AnimatedBuilder(
         animation: _appState,
         builder: (context, child) {
           final hasRoom = _appState.roomId != null;
           return Stack(
             children: [
-              _AmbientBreathingGlow(isPlaying: _isPlaying),
+              RepaintBoundary(
+                child: _AmbientBreathingGlow(isPlaying: _isPlaying),
+              ),
               
               Column(
                 children: [
@@ -310,7 +336,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                             ),
                             Positioned.fill(child: Container(color: Colors.transparent)),
                             ..._reactions,
-                            const Positioned(top: 16, right: 16, child: _SyncIndicator()),
+                            Positioned(top: 16, right: 16, child: _SyncIndicator(isOnline: _isPartnerOnline)),
                             const Positioned(top: 16, left: 16, child: _PartnerAvatarReaction()),
                             if (_showControls)
                               Positioned(
@@ -587,7 +613,9 @@ class _AmbientBreathingGlow extends StatelessWidget {
 }
 
 class _SyncIndicator extends StatelessWidget {
-  const _SyncIndicator();
+  final bool isOnline;
+  const _SyncIndicator({required this.isOnline});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -595,7 +623,10 @@ class _SyncIndicator extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10, width: 0.5),
+        border: Border.all(
+          color: isOnline ? Colors.greenAccent.withValues(alpha: 0.2) : Colors.white10, 
+          width: 0.5
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -603,10 +634,25 @@ class _SyncIndicator extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle),
-          ).animate(onPlay: (c) => c.repeat()).fade(duration: 800.ms),
+            decoration: BoxDecoration(
+              color: isOnline ? Colors.greenAccent : Colors.white24, 
+              shape: BoxShape.circle,
+              boxShadow: isOnline ? [
+                BoxShadow(color: Colors.greenAccent.withValues(alpha: 0.4), blurRadius: 8, spreadRadius: 1)
+              ] : null,
+            ),
+          ).animate(onPlay: (c) => isOnline ? c.repeat() : c.stop())
+           .fade(duration: 800.ms),
           const SizedBox(width: 8),
-          const Text('SENKRONİZE', style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+          Text(
+            isOnline ? 'SENKRONİZE' : 'BEKLENİYOR...', 
+            style: TextStyle(
+              fontSize: 10, 
+              color: isOnline ? Colors.white : Colors.white38, 
+              fontWeight: FontWeight.bold, 
+              letterSpacing: 0.5
+            )
+          ),
         ],
       ),
     );
@@ -645,8 +691,8 @@ class _ChatBubbleInputState extends State<_ChatBubbleInput> {
         }
       },
       decoration: InputDecoration(
-        hintText: 'Say something whisper-quiet...',
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+        hintText: 'Partnerinle fısıldaş...',
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
         filled: true,
         fillColor: SyncColors.glassSurface,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: BorderSide.none),
