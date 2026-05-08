@@ -382,7 +382,7 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                               });
                             },
                           ),
-                          const SizedBox(height: 100),
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),

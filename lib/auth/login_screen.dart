@@ -37,8 +37,8 @@ class LoginScreen extends StatelessWidget {
                 _HeartSyncLogo(),
                 
                 const SizedBox(height: 24),
-                Text('HeartSync', style: GoogleFonts.syne(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
-                Text('Sync your hearts, share the moment.', style: TextStyle(color: SyncColors.textSecondary, fontSize: 14)),
+                const Text('HeartSync', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+                const Text('Sync your hearts, share the moment.', style: TextStyle(color: SyncColors.textSecondary, fontSize: 14)),
                 
                 const SizedBox(height: 60),
 

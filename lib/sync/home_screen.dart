@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const PartnerContextCard(),
                 const NextMovieNoteCard(),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 
 
                 const SizedBox(height: 32),
