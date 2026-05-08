@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/services/call_service.dart';
@@ -175,45 +176,38 @@ class _PulsingAvatarState extends State<_PulsingAvatar> {
           ),
         ).animate(onPlay: (c) => c.repeat())
           .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 2000.ms)
-          .fadeOut(duration: 2000.ms),
-          
-        // Outer pulse ring 2
+          .fadeOut(begin: 1, curve: Curves.easeOut),
+        
+        // Profile Avatar
         Container(
-          width: 130,
-          height: 130,
+          width: 120,
+          height: 120,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: SyncColors.violet.withValues(alpha: 0.3), width: 2),
-          ),
-        ).animate(onPlay: (c) => c.repeat())
-          .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 2000.ms, delay: 500.ms)
-          .fadeOut(duration: 2000.ms),
-          
-        // Avatar
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [SyncColors.violet, SyncColors.coral],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: SyncColors.surface,
+            border: Border.all(color: SyncColors.coral, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: SyncColors.coral.withValues(alpha: 0.4),
+                blurRadius: 30,
+                spreadRadius: 5,
+              ),
+            ],
           ),
           child: Center(
             child: Text(
               initial,
               style: GoogleFonts.syne(
-                fontSize: 40,
+                fontSize: 48,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
           ),
-        ),
+        ).animate(onPlay: (c) => c.repeat())
+          .shimmer(duration: 3000.ms, color: Colors.white24),
       ],
-    ).animate().scale(delay: 100.ms, duration: 500.ms, curve: Curves.easeOutBack);
+    );
   }
 }
 
