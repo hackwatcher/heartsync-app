@@ -11,7 +11,7 @@ import '../core/services/app_state.dart';
 import '../core/services/media_service.dart';
 import '../core/services/sync_service.dart';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,16 +28,12 @@ class _HomeScreenState extends State<HomeScreen> {
   late StreamSubscription _mediaSubscription;
   
   List<HSMemory> _memories = [];
-  bool _partnerIsOnline = false;
   String _partnerMood = 'Peaceful';
   bool _showHeartbeatEffect = false;
-  String _statusText = '';
 
   @override
   void initState() {
     super.initState();
-    _partnerIsOnline = true;
-    _statusText = '${_appState.partnerName} çevrimiçi';
     _syncSubscription = _syncService.eventStream.listen(_handleSyncEvent);
     _mediaSubscription = _mediaService.memoryStream.listen((memories) {
       if (mounted) setState(() => _memories = memories);
@@ -63,8 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
             });
             break;
           case SyncEventType.presence:
-            _partnerIsOnline = event.data as bool;
-            _statusText = _partnerIsOnline ? _appState.partnerName + ' çevrimiçi' : _appState.partnerName + ' çevrimdışı';
             break;
           case SyncEventType.moodUpdate:
             _partnerMood = event.data as String;
@@ -124,12 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 
-                const SizedBox(height: 24),
-                
-                _PresenceStrip(
-                  status: _statusText,
-                  isOnline: _partnerIsOnline,
-                ),
+                const SizedBox(height: 12),
                 
 
                 const SizedBox(height: 32),
@@ -297,63 +286,7 @@ class _AvatarCircle extends StatelessWidget {
   }
 }
 
-class _PresenceStrip extends StatelessWidget {
-  final String status;
-  final bool isOnline;
-
-  const _PresenceStrip({
-    required this.status,
-    required this.isOnline,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: SyncColors.glassSurface,
-        borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: SyncColors.glassBorder),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: isOnline ? Colors.green : SyncColors.violet, 
-              shape: BoxShape.circle
-            ),
-          ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1, 1), end: const Offset(1.5, 1.5)).fadeOut(),
-          const SizedBox(width: 8),
-          Text(
-            status,
-            style: TextStyle(
-              fontSize: 11, 
-              color: isOnline ? Colors.green : SyncColors.violet, 
-              fontWeight: FontWeight.w500
-            ),
-          ),
-          if (AppState().roomId != null) ...[
-            const SizedBox(width: 8),
-            Container(width: 1, height: 10, color: Colors.white24),
-            const SizedBox(width: 4),
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: AppState().roomId!));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Oda kodu kopyalandı! Partnerine gönderebilirsin.')),
-                );
-              },
-              child: const Icon(Icons.copy_rounded, size: 12, color: SyncColors.coral),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
+// Presence status indicator removed.
 
 
 

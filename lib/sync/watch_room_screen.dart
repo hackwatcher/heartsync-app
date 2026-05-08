@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../ui/sync_colors.dart';
@@ -171,158 +172,174 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
           return Stack(
             children: [
               _AmbientBreathingGlow(),
-          
-          Column(
-            children: [
-              // TOP BAR
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
+              
+              Column(
+                children: [
+                  // TOP BAR (Back in Column for natural spacing)
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('🎬 Sinema Modu', style: TextStyle(color: Colors.white60, fontSize: 13)),
-                          const SizedBox(width: 12),
+                          Row(
+                            children: [
+                              const Text('🎬 Sinema Modu', style: TextStyle(color: Colors.white60, fontSize: 13)),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CinemaBrowserScreen()));
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: SyncColors.coral.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: SyncColors.coral),
+                                  ),
+                                  child: const Text('🌐 Platform Seç', style: TextStyle(color: SyncColors.coral, fontSize: 11)),
+                                ),
+                              ),
+                              if (hasRoom) ...[
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(text: _appState.roomId!));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Oda kodu kopyalandı!')),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.white24),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.copy_rounded, color: Colors.white60, size: 10),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _appState.roomId!,
+                                          style: const TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          // Video Call Toggle Button
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CinemaBrowserScreen()));
+                              if (_isCallActive) {
+                                _callService.endCall(notifyPartner: true);
+                              } else {
+                                _callService.startCall();
+                              }
                             },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                color: SyncColors.coral.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: SyncColors.coral),
+                                color: _isCallActive 
+                                  ? Colors.green.withValues(alpha: 0.15) 
+                                  : Colors.white.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: _isCallActive ? Colors.green.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+                                ),
                               ),
-                              child: const Text('🌐 Platform Seç', style: TextStyle(color: SyncColors.coral, fontSize: 11)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _isCallActive ? Icons.videocam_rounded : Icons.videocam_outlined,
+                                    size: 16,
+                                    color: _isCallActive ? Colors.greenAccent : Colors.white,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _isCallActive ? 'Görüşmede' : 'Ara',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _isCallActive ? Colors.greenAccent : Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      // Video Call Toggle Button
-                      GestureDetector(
-                        onTap: () {
-                          if (_isCallActive) {
-                            _callService.endCall(notifyPartner: true);
-                          } else {
-                            _callService.startCall();
-                          }
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _isCallActive 
-                              ? Colors.green.withValues(alpha: 0.15) 
-                              : Colors.white.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: _isCallActive ? Colors.green.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+
+                  // VIDEO PLAYER AREA
+                  Expanded(
+                    flex: 8,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _showControls = !_showControls),
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                        decoration: BoxDecoration(
+                          color: SyncColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: _isVideoInitialized 
+                                ? AspectRatio(
+                                    aspectRatio: _videoController!.value.aspectRatio,
+                                    child: VideoPlayer(_videoController!),
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const CircularProgressIndicator(color: SyncColors.coral),
+                                      const SizedBox(height: 16),
+                                      const Text('Film Yükleniyor...', style: TextStyle(color: Colors.white54)),
+                                    ],
+                                  ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _isCallActive ? Icons.videocam_rounded : Icons.videocam_outlined,
-                                size: 16,
-                                color: _isCallActive ? Colors.greenAccent : Colors.white,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                _isCallActive ? 'Görüşmede' : 'Ara',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: _isCallActive ? Colors.greenAccent : Colors.white,
+                            Positioned.fill(child: Container(color: Colors.transparent)),
+                            ..._reactions,
+                            const Positioned(top: 16, right: 16, child: _SyncIndicator()),
+                            const Positioned(top: 16, left: 16, child: _PartnerAvatarReaction()),
+                            if (_showControls)
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: _VideoControlBar(
+                                  isPlaying: _isPlaying,
+                                  onToggle: _onPlayPause,
+                                  controller: _videoController,
+                                  onSeek: _onSeek,
                                 ),
-                              ),
-                            ],
-                          ),
+                              ).animate().fadeIn().slideY(begin: 0.1, end: 0),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              // VIDEO PLAYER AREA
-              Expanded(
-                flex: 6,
-                child: GestureDetector(
-                  onTap: () => setState(() => _showControls = !_showControls),
-                  child: Container(
-                    margin: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: SyncColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: _isVideoInitialized 
-                            ? AspectRatio(
-                                aspectRatio: _videoController!.value.aspectRatio,
-                                child: VideoPlayer(_videoController!),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const CircularProgressIndicator(color: SyncColors.coral),
-                                  const SizedBox(height: 16),
-                                  const Text('Film Yükleniyor...', style: TextStyle(color: Colors.white54)),
-                                ],
-                              ),
-                        ),
-                        
-                        // Transparent overlay to catch taps
-                        Positioned.fill(
-                          child: Container(color: Colors.transparent),
-                        ),
-                        
-                        // Flying Reactions Layer
-                        ..._reactions,
-
-                        const Positioned(top: 16, right: 16, child: _SyncIndicator()),
-                        const Positioned(top: 16, left: 16, child: _PartnerAvatarReaction()),
-                        
-                        if (_showControls)
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: _VideoControlBar(
-                              isPlaying: _isPlaying,
-                              onToggle: _onPlayPause,
-                              controller: _videoController,
-                              onSeek: _onSeek,
-                            ),
-                          ).animate().fadeIn().slideY(begin: 0.1, end: 0),
-                      ],
                     ),
                   ),
-                ),
-              ),
-              
-              // REACTION PANEL
-              Expanded(
-                flex: 4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SingleChildScrollView(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.4,
+                  
+                  // REACTION PANEL
+                  Expanded(
+                    flex: 5,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 8),
                           _QuickReactionsRow(
                             onEmojiTap: _addReaction,
-                            onHeartTap: () {
-                              _socketService.emitEvent(_appState.roomId ?? 'default', 'reaction', {'emoji': '❤️'});
-                              _showReactionLocally('❤️');
-                            },
                           ),
                           const SizedBox(height: 16),
                           Expanded(
@@ -365,36 +382,34 @@ class _WatchRoomScreenState extends State<WatchRoomScreen> {
                               });
                             },
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 100),
                         ],
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          
-          // PiP Camera during call (draggable)
-          if (_isCallActive && _callService.remoteRenderer != null)
-            Positioned(
-              left: _pipPosition.dx,
-              top: _pipPosition.dy,
-              child: GestureDetector(
-                onPanUpdate: (details) {
-                  setState(() {
-                    _pipPosition += details.delta;
-                  });
-                },
-                child: _PipCallView(
-                  localRenderer: _callService.localRenderer!,
-                  remoteRenderer: _callService.remoteRenderer!,
+              
+              // PiP Camera during call (draggable)
+              if (_isCallActive && _callService.remoteRenderer != null)
+                Positioned(
+                  left: _pipPosition.dx,
+                  top: _pipPosition.dy,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        _pipPosition += details.delta;
+                      });
+                    },
+                    child: _PipCallView(
+                      localRenderer: _callService.localRenderer!,
+                      remoteRenderer: _callService.remoteRenderer!,
+                    ),
+                  ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack).fadeIn(),
                 ),
-              ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack).fadeIn(),
-            ),
-            if (!hasRoom) const _RoomConnectOverlay(),
-          ],
-        );
+              if (!hasRoom) const _RoomConnectOverlay(),
+            ],
+          );
         },
       ),
     );
@@ -517,8 +532,7 @@ class _VideoControlBar extends StatelessWidget {
 
 class _QuickReactionsRow extends StatelessWidget {
   final Function(String) onEmojiTap;
-  final VoidCallback onHeartTap;
-  const _QuickReactionsRow({required this.onEmojiTap, required this.onHeartTap});
+  const _QuickReactionsRow({required this.onEmojiTap});
 
   @override
   Widget build(BuildContext context) {
@@ -540,25 +554,6 @@ class _QuickReactionsRow extends StatelessWidget {
                   ),
                 ).animate().fadeIn(delay: (index * 50).ms).scale();
               },
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: onHeartTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: SyncColors.coral.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: SyncColors.coral.withValues(alpha: 0.3)),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.favorite, color: SyncColors.coral, size: 20),
-                  SizedBox(width: 8),
-                  Text('Tap', style: TextStyle(color: SyncColors.coral, fontWeight: FontWeight.bold, fontSize: 13)),
-                ],
-              ),
             ),
           ),
         ],

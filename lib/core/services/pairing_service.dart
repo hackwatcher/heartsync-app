@@ -58,6 +58,9 @@ class PairingService {
     _socketService.connect();
     _socketService.joinRoom(_generatedCode!);
     _statusController.add(PairingStatus.waiting);
+    
+    // Set room immediately so UI transitions
+    _appState.setConnected(true, room: _generatedCode);
 
     _listenSub?.cancel();
     // Listen for partner joining/leaving (real-time relay)
