@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../ui/sync_colors.dart';
-import '../../core/services/app_state.dart';
 
 class PartnerContextCard extends StatelessWidget {
   const PartnerContextCard({super.key});
@@ -16,7 +15,7 @@ class PartnerContextCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: SyncColors.glassBorder),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _InfoItem(icon: Icons.location_on_outlined, value: '1.240 km', label: 'Uzaklık'),
